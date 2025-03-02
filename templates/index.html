@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Anomaly Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="home">
+    <div class="container">
+        <h1>Welcome to the Anomaly Detector</h1>
+        <p>Detect anomalies in images instantly with AI.</p>
+        <a href="{{ url_for('detector') }}">
+            <button class="start-btn">Get Started</button>
+        </a>
+        
+    </div>
+</body>
+</html>

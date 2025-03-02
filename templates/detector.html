@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="detector">
+    <div class="container">
+        <h1>🔍 Anomaly Detector</h1>
+        <input type="file" id="imageInput" accept="image/*">
+        <button onclick="uploadImage()" class="detect-btn">Detect Anomalies</button>
+        <div id="output"></div>
+    </div>
+    
+    <script>
+        function uploadImage() {
+            const input = document.getElementById('imageInput');
+            const output = document.getElementById('output');
+            output.innerHTML = "<p>Processing...</p>";
+            
+            if (input.files.length > 0) {
+                const file = input.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                fetch('/detect', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.processed_image) {
+                        output.innerHTML = `<h3>Detected Anomalies:</h3><img src="${data.processed_image}" alt="Processed Image">`;
+                    } else {
+                        output.innerHTML = "<p>Error detecting anomalies.</p>";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    output.innerHTML = "<p>Failed to process image.</p>";
+                });
+            } else {
+                output.innerHTML = "<p>Please select an image.</p>";
+            }
+        }
+    </script>
+</body>
+</html>
