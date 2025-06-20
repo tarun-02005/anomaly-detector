@@ -9,41 +9,64 @@
 <body class="detector">
     <div class="container">
         <h1>🔍 Anomaly Detector</h1>
-        <input type="file" id="imageInput" accept="image/*">
-        <button onclick="uploadImage()" class="detect-btn">Detect Anomalies</button>
+        <input type="file" id="fileInput" class="file-input" accept="image/*,video/*">
+        <button onclick="uploadFile()" class="detect-btn">Detect Anomalies</button>
         <div id="output"></div>
     </div>
-    
+
     <script>
-        function uploadImage() {
-            const input = document.getElementById('imageInput');
+        function uploadFile() {
+            const input = document.getElementById('fileInput');
             const output = document.getElementById('output');
-            output.innerHTML = "<p>Processing...</p>";
+            const button = document.querySelector('.detect-btn');
             
-            if (input.files.length > 0) {
-                const file = input.files[0];
-                const formData = new FormData();
-                formData.append('file', file);
-                
-                fetch('/detect', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.processed_image) {
-                        output.innerHTML = `<h3>Detected Anomalies:</h3><img src="${data.processed_image}" alt="Processed Image">`;
-                    } else {
-                        output.innerHTML = "<p>Error detecting anomalies.</p>";
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    output.innerHTML = "<p>Failed to process image.</p>";
-                });
-            } else {
-                output.innerHTML = "<p>Please select an image.</p>";
+            if (input.files.length === 0) {
+                output.innerHTML = "<p>Please select an image or video.</p>";
+                return;
             }
+
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            output.innerHTML = "<p>Processing...</p>";
+            button.disabled = true;
+            button.textContent = "Processing...";
+
+            fetch('/detect', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                button.disabled = false;
+                button.textContent = "Detect Anomalies";
+
+                if (data.path && data.type === 'image') {
+                    output.innerHTML = `
+                        <h3>Detected Anomalies (Image):</h3>
+                        <img src="${data.path}" alt="Processed Image" width="500">
+                        <p><a href="${data.path}" download>Download Processed Image</a></p>
+                    `;
+                } else if (data.path && data.type === 'video') {
+                     output.innerHTML = `
+                        <h3>Detected Anomalies (Video):</h3>
+                        <video width="500" controls>
+                            <source src="${data.path}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <p><a href="${data.path}" download>Download Processed Video</a></p>
+                    `;
+                } else {
+                    output.innerHTML = "<p>Error detecting anomalies.</p>";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                output.innerHTML = "<p>Failed to process file.</p>";
+                button.disabled = false;
+                button.textContent = "Detect Anomalies";
+            });
         }
     </script>
 </body>
