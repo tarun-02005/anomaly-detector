@@ -106,4 +106,6 @@ def process_video(filepath, filename):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000, debug=True)
+    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    port = int(os.getenv('PORT', 10000))
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)
